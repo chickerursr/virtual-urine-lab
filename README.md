@@ -6,7 +6,7 @@ It runs in any modern browser, on a laptop or a phone. There is nothing to insta
 
 ![Benedict's test after 2 minutes of boiling, Case 2](og-image.png)
 
-**Walkthrough video (8 min, narrated):** [media/walkthrough_expt10.mp4](media/walkthrough_expt10.mp4) (subtitles: [walkthrough_expt10.srt](media/walkthrough_expt10.srt))
+**Walkthrough video (8.5 min, narrated, recorded on this live site):** [media/walkthrough_expt10.mp4](media/walkthrough_expt10.mp4) (subtitles: [walkthrough_expt10.srt](media/walkthrough_expt10.srt))
 
 ## What this is
 

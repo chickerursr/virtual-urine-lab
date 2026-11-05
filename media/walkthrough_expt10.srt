@@ -1,235 +1,255 @@
 1
-00:00:00,250 --> 00:00:12,880
+00:00:00,250 --> 00:00:12,970
 This is a short walkthrough of a proposed virtual lab for Experiment 10 of the MBBS biochemistry journal: qualitative analysis of abnormal urine.
 
 2
-00:00:12,880 --> 00:00:14,536
+00:00:12,970 --> 00:00:14,636
 The idea is simple.
 
 3
-00:00:14,536 --> 00:00:20,023
+00:00:14,636 --> 00:00:20,163
 Every test is simulated from the chemistry of the urine sample.
 
 4
-00:00:20,023 --> 00:00:28,641
+00:00:20,163 --> 00:00:28,234
 So what a student sees on the laptop can be checked, tube by tube, against the real wet lab.
 
 5
-00:00:28,891 --> 00:00:30,827
-Here is how it works.
+00:00:28,234 --> 00:00:36,466
+The lab is already online, at the link on the screen, and works on any laptop or phone.
 
 6
-00:00:30,827 --> 00:00:40,968
-The urine sample is defined by what it contains: albumin, red cells, glucose, ketone bodies, bile, and its pH.
+00:00:36,718 --> 00:00:38,655
+Here is how it works.
 
 7
-00:00:40,968 --> 00:00:51,202
-Each test is then simulated from its chemistry: reaction rates, temperature, pH, diffusion and surface tension.
+00:00:38,655 --> 00:00:48,796
+The urine sample is defined by what it contains: albumin, red cells, glucose, ketone bodies, bile, and its pH.
 
 8
-00:00:51,202 --> 00:00:56,641
-The colours are computed from how the liquid absorbs light.
+00:00:48,796 --> 00:00:59,029
+Each test is then simulated from its chemistry: reaction rates, temperature, pH, diffusion and surface tension.
 
 9
-00:00:56,641 --> 00:01:06,229
-The same sample is prepared in the wet lab from a recipe, tested by the journal procedure, and compared.
+00:00:59,029 --> 00:01:04,468
+The colours are computed from how the liquid absorbs light.
 
 10
-00:01:06,229 --> 00:01:12,361
-If a bench differs, one measurement re-calibrates the model.
+00:01:04,468 --> 00:01:14,056
+The same sample is prepared in the wet lab from a recipe, tested by the journal procedure, and compared.
 
 11
-00:01:12,611 --> 00:01:17,185
-The lab opens with case report one from the journal.
+00:01:14,056 --> 00:01:20,188
+If a bench differs, one measurement re-calibrates the model.
 
 12
-00:01:17,185 --> 00:01:27,037
-John, eight years old, with lethargy, puffiness of the face, reddish urine, and a blood pressure of 140/90 mmHg.
+00:01:20,438 --> 00:01:25,013
+The lab opens with case report one from the journal.
 
 13
-00:01:27,037 --> 00:01:30,116
-The first decision is the specimen.
+00:01:25,013 --> 00:01:34,865
+John, eight years old, with lethargy, puffiness of the face, reddish urine, and a blood pressure of 140/90 mmHg.
 
 14
-00:01:30,116 --> 00:01:41,800
-For an 8-year-old who can co-operate, a midstream clean-catch sample is appropriate, and the lab gives feedback on the choice.
+00:01:34,865 --> 00:01:37,943
+The first decision is the specimen.
 
 15
-00:01:42,050 --> 00:01:48,053
-In the physical examination, the colour of the urine is not a picture.
+00:01:37,943 --> 00:01:49,627
+For an 8-year-old who can co-operate, a midstream clean-catch sample is appropriate, and the lab gives feedback on the choice.
 
 16
-00:01:48,053 --> 00:01:54,055
-It is computed from the light absorption of urochrome and haemoglobin.
+00:01:49,877 --> 00:01:55,880
+In the physical examination, the colour of the urine is not a picture.
 
 17
-00:01:54,055 --> 00:02:04,603
-The student records volume, colour and appearance, wafts the odour, and reads the pH paper against its colour chart.
+00:01:55,880 --> 00:02:01,883
+It is computed from the light absorption of urochrome and haemoglobin.
 
 18
-00:02:04,853 --> 00:02:11,213
-Specific gravity is read on a virtual urinometer at the lower meniscus.
+00:02:01,883 --> 00:02:12,431
+The student records volume, colour and appearance, wafts the odour, and reads the pH paper against its colour chart.
 
 19
-00:02:11,213 --> 00:02:17,662
-The room temperature is set to the real thermometer reading, here 28 °C.
+00:02:12,681 --> 00:02:19,040
+Specific gravity is read on a virtual urinometer at the lower meniscus.
 
 20
-00:02:17,662 --> 00:02:26,709
-The student applies the journal's correction: 0.001 for every 3 °C above the calibration temperature.
+00:02:19,040 --> 00:02:25,489
+The room temperature is set to the real thermometer reading, here 28 °C.
 
 21
-00:02:26,709 --> 00:02:32,773
-The lab then checks every entry against the simulated result.
+00:02:25,489 --> 00:02:34,536
+The student applies the journal's correction: 0.001 for every 3 °C above the calibration temperature.
 
 22
-00:02:33,023 --> 00:02:46,911
-In the chemical tests, the student first selects the right test for each abnormal constituent, exactly as the case report asks.
+00:02:34,536 --> 00:02:40,600
+The lab then checks every entry against the simulated result.
 
 23
-00:02:47,161 --> 00:02:51,669
-Each test follows the journal procedure step by step.
+00:02:40,850 --> 00:02:55,180
+In the chemical tests, the student first selects the right test for each abnormal constituent, exactly as the case report asks.
 
 24
-00:02:51,669 --> 00:03:01,025
-In the heat coagulation test, only the upper part of the tube is heated, so the lower part stays as a control.
+00:02:55,430 --> 00:02:59,938
+Each test follows the journal procedure step by step.
 
 25
-00:03:01,025 --> 00:03:13,444
-The upper portion turns cloudy, and after acetic acid the turbidity persists, because the denatured albumin aggregates near its isoelectric point.
+00:02:59,938 --> 00:03:09,295
+In the heat coagulation test, only the upper part of the tube is heated, so the lower part stays as a control.
 
 26
-00:03:13,444 --> 00:03:19,828
-The model calculates this from the albumin concentration and the pH.
+00:03:09,295 --> 00:03:21,713
+The upper portion turns cloudy, and after acetic acid the turbidity persists, because the denatured albumin aggregates near its isoelectric point.
 
 27
-00:03:20,078 --> 00:03:33,540
-Benedict's test stays blue for John, because there is no reducing sugar in his urine.
+00:03:21,713 --> 00:03:28,098
+The model calculates this from the albumin concentration and the pH.
 
 28
-00:03:33,790 --> 00:03:38,813
-The benzidine test turns blue-green almost immediately.
+00:03:28,348 --> 00:03:42,159
+Benedict's test stays blue for John, because there is no reducing sugar in his urine.
 
 29
-00:03:38,813 --> 00:03:48,767
-In the model this is haem peroxidase kinetics: 10 000 RBC/µL give a colour that is visible in under a second.
+00:03:42,409 --> 00:03:47,432
+The benzidine test turns blue-green almost immediately.
 
 30
-00:03:48,767 --> 00:03:56,673
-So John has protein and blood in the urine, which fits acute glomerulonephritis.
+00:03:47,432 --> 00:03:57,386
+In the model this is haem peroxidase kinetics: 10 000 RBC/µL give a colour that is visible in under a second.
 
 31
-00:03:56,923 --> 00:04:01,209
-The dipstick is timed, as the journal requires.
+00:03:57,386 --> 00:04:05,293
+So John has protein and blood in the urine, which fits acute glomerulonephritis.
 
 32
-00:04:01,209 --> 00:04:09,325
-The pads develop colour over time from their indicator chemistry, shown here at 6× speed.
+00:04:05,543 --> 00:04:09,829
+The dipstick is timed, as the journal requires.
 
 33
-00:04:09,325 --> 00:04:27,114
-Readings must be taken between 40 s and 2 min, and the lab flags readings taken too early or too late.
+00:04:09,829 --> 00:04:17,945
+The pads develop colour over time from their indicator chemistry, shown here at 6× speed.
 
 34
-00:04:27,364 --> 00:04:34,851
-Case report two is the 50-year-old diabetic woman in coma, with Kussmaul breathing.
+00:04:17,945 --> 00:04:35,988
+Readings must be taken between 40 s and 2 min, and the lab flags readings taken too early or too late.
 
 35
-00:04:34,851 --> 00:04:47,659
-Benedict's test, boiled for 2 min, goes from blue through green and orange to a brick red precipitate, because the urine contains 3 % glucose.
+00:04:36,238 --> 00:04:43,724
+Case report two is the 50-year-old diabetic woman in coma, with Kussmaul breathing.
 
 36
-00:04:47,659 --> 00:04:53,974
-Rothera's test forms a purple ring at the junction, from acetoacetate.
+00:04:43,724 --> 00:04:56,533
+Benedict's test, boiled for 2 min, goes from blue through green and orange to a brick red precipitate, because the urine contains 3 % glucose.
 
 37
-00:04:53,974 --> 00:05:06,841
-The model also knows that β-hydroxybutyrate, the main ketone in ketoacidosis, does not react, so urine tests can under-estimate ketosis.
+00:04:56,533 --> 00:05:02,848
+Rothera's test forms a purple ring at the junction, from acetoacetate.
 
 38
-00:05:07,092 --> 00:05:13,312
-The reaction simulator shows why each step of the procedure matters.
+00:05:02,848 --> 00:05:15,715
+The model also knows that β-hydroxybutyrate, the main ketone in ketoacidosis, does not react, so urine tests can under-estimate ketosis.
 
 39
-00:05:13,312 --> 00:05:21,911
-With 2 % glucose, boiling on a flame for 2 min reduces most of the copper and gives brick red.
+00:05:15,966 --> 00:05:22,186
+The reaction simulator shows why each step of the procedure matters.
 
 40
-00:05:21,911 --> 00:05:27,217
-In a 60 °C water bath, the same sample only reaches green.
+00:05:22,186 --> 00:05:30,785
+With 2 % glucose, boiling on a flame for 2 min reduces most of the copper and gives brick red.
 
 41
-00:05:27,217 --> 00:05:31,210
-Under-heating under-reads glycosuria.
+00:05:30,785 --> 00:05:36,091
+In a 60 °C water bath, the same sample only reaches green.
 
 42
-00:05:31,460 --> 00:05:39,681
-For heat coagulation, the simulator shows the effect of acetic acid on pH and on aggregation.
+00:05:36,091 --> 00:05:40,112
+Under-heating under-reads glycosuria.
 
 43
-00:05:39,681 --> 00:05:48,503
-For Rothera's test, it shows ammonia diffusing down the tube, which is what creates the ring.
+00:05:40,362 --> 00:05:48,583
+For heat coagulation, the simulator shows the effect of acetic acid on pH and on aggregation.
 
 44
-00:05:48,753 --> 00:05:53,004
-This is how we propose to compare with the wet lab.
+00:05:48,583 --> 00:05:57,405
+For Rothera's test, it shows ammonia diffusing down the tube, which is what creates the ring.
 
 45
-00:05:53,004 --> 00:06:13,595
-For each test the model predicts something measurable: the mass of copper oxide in Benedict's test, the absorbance after sulphosalicylic acid, the seconds until the Rothera ring or the benzidine colour appears, and photographs of the tube colours.
+00:05:57,655 --> 00:06:01,907
+This is how we propose to compare with the wet lab.
 
 46
-00:06:13,595 --> 00:06:17,346
-Entering a bench value gives agree or differ.
+00:06:01,907 --> 00:06:22,498
+For each test the model predicts something measurable: the mass of copper oxide in Benedict's test, the absorbance after sulphosalicylic acid, the seconds until the Rothera ring or the benzidine colour appears, and photographs of the tube colours.
 
 47
-00:06:17,346 --> 00:06:21,098
-The value typed here is only an illustration.
+00:06:22,498 --> 00:06:26,249
+Entering a bench value gives agree or differ.
 
 48
-00:06:21,098 --> 00:06:27,284
-A printable standards series checks the model over its whole range.
+00:06:26,249 --> 00:06:30,000
+The value typed here is only an illustration.
 
 49
-00:06:27,534 --> 00:06:44,490
-For the wet lab, the faculty tab gives a recipe for each case, per 100 mL of pooled urine: albumin and fresh blood for case one, glucose and acetoacetate for case two, with the expected answer key.
+00:06:30,000 --> 00:06:36,186
+A printable standards series checks the model over its whole range.
 
 50
-00:06:44,490 --> 00:06:53,611
-A custom builder lets faculty design unknown samples and see the predicted result before the class.
+00:06:36,437 --> 00:06:53,393
+For the wet lab, the faculty tab gives a recipe for each case, per 100 mL of pooled urine: albumin and fresh blood for case one, glucose and acetoacetate for case two, with the expected answer key.
 
 51
-00:06:53,862 --> 00:07:04,057
-One part of the chemistry was cross-checked with the open source program PHREEQC, from the US Geological Survey.
+00:06:53,393 --> 00:07:02,515
+A custom builder lets faculty design unknown samples and see the predicted result before the class.
 
 52
-00:07:04,057 --> 00:07:09,883
-It showed that my first model of the acetic acid step was wrong.
+00:07:02,765 --> 00:07:12,960
+One part of the chemistry was cross-checked with the open source program PHREEQC, from the US Geological Survey.
 
 53
-00:07:09,883 --> 00:07:14,616
-The corrected model now agrees within 0.02 pH units.
+00:07:12,960 --> 00:07:18,786
+It showed that my first model of the acetic acid step was wrong.
 
 54
-00:07:14,616 --> 00:07:25,776
-There is no open source simulator for qualitative urinalysis, so the kinetics and colours are this lab's own models.
+00:07:18,786 --> 00:07:23,520
+The corrected model now agrees within 0.02 pH units.
 
 55
-00:07:26,026 --> 00:07:30,445
-What I propose is a short pilot with your department.
+00:07:23,520 --> 00:07:34,680
+There is no open source simulator for qualitative urinalysis, so the kinetics and colours are this lab's own models.
 
 56
-00:07:30,445 --> 00:07:43,453
-We prepare the two case samples from the recipe, run the journal procedure in the wet lab and on the laptop side by side, and record agreement test by test.
+00:07:34,930 --> 00:07:39,294
+What I propose is a short pilot with your department.
 
 57
-00:07:43,453 --> 00:07:49,040
-Your clinical review of the cases and interpretations is essential.
+00:07:39,294 --> 00:07:52,139
+We prepare the two case samples from the recipe, run the journal procedure in the wet lab and on the laptop side by side, and record agreement test by test.
 
 58
-00:07:49,040 --> 00:07:58,629
-The constants come from published values, so agreement with our own bench is exactly what the pilot will establish.
+00:07:52,139 --> 00:07:57,656
+Your clinical review of the cases and interpretations is essential.
 
 59
-00:07:58,629 --> 00:08:00,063
+00:07:57,656 --> 00:08:07,726
+The constants come from published values, so agreement with our own bench is exactly what the pilot will establish.
+
+60
+00:08:07,977 --> 00:08:12,446
+You can use the lab now, at the link on the screen.
+
+61
+00:08:12,446 --> 00:08:18,317
+It works on any laptop or phone, with no installation and no login.
+
+62
+00:08:18,317 --> 00:08:26,029
+It is free for teaching, learning and research under the PolyForm Noncommercial licence.
+
+63
+00:08:26,029 --> 00:08:30,061
+Commercial use requires my written permission.
+
+64
+00:08:30,061 --> 00:08:31,539
 Thank you.

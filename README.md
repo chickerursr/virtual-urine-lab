@@ -82,6 +82,17 @@ Run it offline: download the repository and double-click `index.html`.
 | `tests/` | automated tests (Node.js) |
 | `opensource_sim/` | PHREEQC cross-check script and its results |
 
+## Licence
+
+Released under the **[PolyForm Noncommercial License 1.0.0](LICENSE.md)**.
+
+- **Free** for any noncommercial purpose: teaching, learning, research and personal study. This covers use by any educational institution, public research organisation, or public health or government body, which may also copy and adapt it.
+- **Commercial use** (for example including it in a paid product or service) needs written permission from the author. Please get in touch through this repository.
+
+Required Notice: Copyright (c) 2026 Satyadhyan Chickerur (https://github.com/chickerursr/virtual-urine-lab)
+
+The two case reports and the experiment procedures follow the MBBS Biochemistry Journal of the Department of Biochemistry, Jawaharlal Nehru Medical College, KAHER, Belagavi. They are acknowledged here and remain the property of their owners; the licence above covers this project's own code and content.
+
 ## Note
 
 For medical education. Results are model predictions, meant to be compared with the wet lab, and are not for clinical decisions. The ancillary blood values in the case tab are illustrative. Benzidine is a carcinogen: in the wet lab use gloves and a fume hood, or the substitute your department prescribes.

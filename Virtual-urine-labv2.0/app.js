@@ -44,9 +44,13 @@
     const cp = $('#casepick');
     const opts = [['case1', E.CASES.case1.short], ['case2', E.CASES.case2.short]];
     cp.innerHTML = opts.map(([id, l]) => `<button class="${state.caseId === id ? 'on' : ''}" data-case="${id}">${esc(l)}</button>`).join('') +
-      `<button class="ghost" id="replayIntro" title="Read and listen to the instructions again">🔊 Instructions</button>`;
+      `<button class="ghost" id="replayIntro" title="Read and listen to the instructions again">📋 Instructions</button>` +
+      `<button class="ghost" id="voiceToggle" title="Spoken instructions for every step" aria-pressed="${voice.on}">${voice.on ? '🔊 Voice guide: on' : '🔇 Voice guide: off'}</button>` +
+      `<button class="ghost" id="voiceRepeat" title="Repeat the last spoken instruction">↻ Repeat</button>`;
     $$('button[data-case]', cp).forEach(b => b.onclick = () => { stopDip(); state.caseId = b.dataset.case; save(); render(); });
     $('#replayIntro').onclick = showIntro;
+    $('#voiceToggle').onclick = () => { voice.on = !voice.on; state.voiceOn = voice.on; save(); if (!voice.on) voice.stop(); else narrateTab(); render(); };
+    $('#voiceRepeat').onclick = () => voice.repeat();
 
     $('#tabs').innerHTML = TABS.map(([id, l]) =>
       `<button class="${state.tab === id ? 'on' : ''}" data-tab="${id}">${l}${['case', 'physical', 'chemical', 'dipstick'].includes(id) ? `<span class="dot ${isDone(id) ? 'done' : ''}"></span>` : ''}</button>`).join('');
@@ -54,9 +58,95 @@
 
     const m = $('#main');
     ({ case: viewCase, physical: viewPhysical, chemical: viewChemical, dipstick: viewDipstick, report: viewReport })[state.tab](m);
+
+    // speak the instructions for a step whenever the student arrives at a new tab or case
+    const key = state.caseId + '|' + state.tab;
+    if (narratedKey !== null && key !== narratedKey) narrateTab();
+    if (narratedKey !== null) narratedKey = key;
   }
 
-  /* ------------------------------------------------------------ instructions (read aloud) */
+  /* ------------------------------------------------------------ voice guide (browser speech) */
+  // Turns screen text into something a speech engine reads naturally.
+  const SPOKEN = [[/°C/g, ' degrees Celsius'], [/≥/g, 'at least '], [/~/g, 'about '], [/→/g, ', then '], [/2\/3rd/g, 'two thirds'], [/¾/g, 'three quarters'],
+    [/H₂O₂/g, 'hydrogen peroxide'], [/Cu²⁺/g, 'copper ions'], [/Cu₂O/g, 'cuprous oxide'], [/\bmL\b/g, 'millilitres'], [/mN\/m/g, 'millinewtons per metre'],
+    [/\bSG\b/g, 'specific gravity'], [/\bCase I\b/g, 'Case one'], [/\bCase II\b/g, 'Case two'], [/\bpH\b/g, 'P H'], [/(\d)\s*[–-]\s*(\d)/g, '$1 to $2'], [/\bUPPER\b/g, 'upper'], [/\bBP\b/g, 'blood pressure'], [/mmHg/g, 'millimetres of mercury'], [/(\d+)\/(\d+)/g, '$1 over $2'], [/[·•]/g, ', '], [/[“”"]/g, ''], [/\s+/g, ' ']];
+  const voice = {
+    on: state.voiceOn !== false, last: '', voices: [],
+    pick() {
+      const vs = this.voices.length ? this.voices : (window.speechSynthesis ? speechSynthesis.getVoices() : []);
+      return vs.find(x => /en[-_]IN/i.test(x.lang)) || vs.find(x => /en[-_]GB/i.test(x.lang)) || vs.find(x => /^en/i.test(x.lang)) || null;
+    },
+    // queue = true adds to what is being spoken; otherwise the new instruction replaces it.
+    say(text, queue, force, onend) {
+      const ss = window.speechSynthesis;
+      if (!ss || !text || (!this.on && !force)) return false;
+      if (!queue) { ss.cancel(); this.last = ''; }
+      this.last = (this.last ? this.last + ' ' : '') + text;
+      let spoken = String(text); SPOKEN.forEach(([re, to]) => { spoken = spoken.replace(re, to); });
+      // short utterances: some browsers stop long ones after about 15 seconds
+      const parts = spoken.split(/(?<=[.!?])\s+/), v = this.pick();
+      parts.forEach((t, i) => {
+        if (!t.trim()) return;
+        const u = new SpeechSynthesisUtterance(t.trim());
+        if (v) u.voice = v; u.lang = v ? v.lang : 'en-IN'; u.rate = 0.95;
+        if (i === parts.length - 1 && onend) u.onend = onend;
+        ss.speak(u);
+      });
+      return true;
+    },
+    stop() { if (window.speechSynthesis) speechSynthesis.cancel(); },
+    repeat() { const t = this.last; if (t) this.say(t, false, true); }
+  };
+  if (window.speechSynthesis) {
+    voice.voices = speechSynthesis.getVoices();
+    speechSynthesis.onvoiceschanged = () => { voice.voices = speechSynthesis.getVoices(); };
+  }
+  let narratedKey = null;   // null until the student closes the instruction screen
+
+  /* Spoken instruction for each tab (the first step of that stage). */
+  function narrateTab(queue) {
+    const c = C(), r = R(), label = CASE_LABEL[state.caseId];
+    const t = {
+      case: () => `${label}. Read the case report. ${c.vignette} ${c.investigations.join(', ')}. ` +
+        (r.collection ? 'You have chosen the specimen. Click Proceed to physical examination.' : 'Step 1. Choose the urine specimen collection method you would use for this patient, and click Check choice.'),
+      physical: () => `Physical examination of ${label}. ` + physNext(r.physical),
+      chemical: () => `Chemical examination of ${label}. First, for each abnormal constituent, select the test you will perform, and click Check selection. ` +
+        `Then perform the tests on the bench one step at a time, clicking each step in order. ` + chemNext(r),
+      dipstick: () => `Dipstick test for ${label}. Click the three steps of the Multistix procedure in order. The timer starts when you hold the strip horizontally. ` +
+        'Wait 40 seconds, then read each pad within 2 minutes by clicking the matching colour block on the chart. Then click Record and check readings.',
+      report: () => `Report for ${label}. Enter your name and roll number. Write your interpretation of the case in the Interpretation box. ` +
+        (state.caseId === 'case1' ? 'Then click Proceed to Case II, and analyse the second case in the same way.' : 'Then click Save report as PDF. The PDF contains both cases, your roll number and your marks.')
+    }[state.tab];
+    if (t) voice.say(t(), queue);
+  }
+
+  // next thing to do on the physical examination page
+  function physNext(p) {
+    const c = C();
+    if (blank(p.volume)) return `The 24 hour urine output is ${c.sample.volume24h} millilitres. Select the volume.`;
+    if (blank(p.colour)) return 'Look at the urine in the beaker against a white background, and select its colour.';
+    if (blank(p.appearance)) return 'Now select the appearance of the urine.';
+    if (!p.wafted) return 'Click Waft the vapour gently towards the nose, to note the odour.';
+    if (blank(p.odour)) return 'Select the odour.';
+    if (!p.dipped) return 'Now the pH. Click the blinking button: Dip pH paper in urine and compare.';
+    if (blank(p.pH)) return 'Compare the colour of the pH paper with the colour chart, and select the pH read.';
+    if (blank(p.reaction)) return 'Select the reaction: acidic, neutral or alkaline.';
+    if (blank(p.sgObs)) return 'Now the specific gravity. Read the urinometer where the lower meniscus cuts the scale, and enter the observed specific gravity.';
+    if (blank(p.sgTd)) return `Room temperature is ${state.env.troom} °C and the urinometer is calibrated at ${state.env.tcal} °C. Enter the temperature difference.`;
+    if (blank(p.sgCor)) return 'Enter the corrected specific gravity: the observed value plus 0.001 times the temperature difference, divided by 3.';
+    if (!p.checked) return 'Click Record and check physical findings.';
+    return 'The physical examination is complete. Click Proceed for chemical examination.';
+  }
+  // next test to perform on the chemical examination page
+  function chemNext(r) {
+    const k = TEST_ORDER.find(x => !r.chem[x]);
+    if (!k) return 'All the chemical tests are recorded. Click Proceed to dipstick analysis.';
+    const step = r.bench[k] || 0, def = BENCH[k];
+    return step >= def.steps.length ? `Select the observation and inference for the ${E.TESTS[k].name}, and click Record in notebook.`
+      : `Next, the ${E.TESTS[k].name}. Click step ${step + 1}: ${def.steps[step][0]}.`;
+  }
+
+  /* ------------------------------------------------------------ instructions before the lab (read aloud) */
   const INTRO = [
     'Perform analysis of abnormal urine.',
     'There are two different case scenarios available in the lab.',
@@ -64,17 +154,6 @@
     'First perform the physical examination, then proceed for the chemical examination, followed by the dipstick test.',
     'At the end of the experiment, based on the results, interpret the given cases and submit the report.'
   ];
-  function speak(on, onend) {
-    const ss = window.speechSynthesis; if (!ss) return false;
-    ss.cancel(); if (!on) return true;
-    const u = new SpeechSynthesisUtterance('Instructions. ' + INTRO.join(' '));
-    const vs = ss.getVoices();
-    const v = vs.find(x => /en[-_]IN/i.test(x.lang)) || vs.find(x => /en[-_]GB/i.test(x.lang)) || vs.find(x => /^en/i.test(x.lang));
-    if (v) u.voice = v;
-    u.lang = v ? v.lang : 'en-IN'; u.rate = 0.92;
-    u.onend = onend || null;
-    ss.speak(u); return true;
-  }
   function closeIntro() {
     const ov = $('#intro'); if (ov) ov.parentNode.removeChild(ov);
     document.removeEventListener('pointerdown', introKick, true); document.removeEventListener('keydown', introKick, true);
@@ -82,13 +161,13 @@
   let introStarted = false;
   function introKick(e) {
     // Browsers allow speech only after a user action: start the voice on the first click or key press.
-    if (e && e.target && e.target.id === 'introVoice') return;
+    if (e && e.target && (e.target.id === 'introVoice' || e.target.id === 'introStart')) return;
     startVoice();
     document.removeEventListener('pointerdown', introKick, true); document.removeEventListener('keydown', introKick, true);
   }
   function startVoice() {
     const b = $('#introVoice');
-    introStarted = speak(true, () => { introStarted = false; const bb = $('#introVoice'); if (bb) bb.textContent = '🔊 Play instructions again'; });
+    introStarted = voice.say('Instructions. ' + INTRO.join(' '), false, true, () => { introStarted = false; const bb = $('#introVoice'); if (bb) bb.textContent = '🔊 Play instructions again'; });
     if (b) b.textContent = introStarted ? '⏹ Stop voice' : '🔇 Voice not available in this browser';
   }
   function showIntro() {
@@ -101,18 +180,24 @@
         <button class="ghost" id="introVoice">🔊 Listen to instructions</button>
         <button class="go" id="introStart">Start the lab with Case I →</button>
       </div>
-      <p class="small muted" style="margin-bottom:0">The instructions are read aloud in the background. You can replay them any time from the <b>🔊 Instructions</b> button at the top.</p>
+      <label class="small flex" style="margin-top:12px;gap:6px"><input type="checkbox" id="introGuide" ${voice.on ? 'checked' : ''}> Voice guide: speak the instructions for every step of the lab</label>
+      <p class="small muted" style="margin-bottom:0">The instructions are read aloud in the background. Use <b>📋 Instructions</b>, <b>Voice guide</b> and <b>↻ Repeat</b> at the top at any time. Use headphones in a shared lab.</p>
     </div>`;
     document.body.appendChild(ov);
     document.addEventListener('pointerdown', introKick, true); document.addEventListener('keydown', introKick, true);
     if (navigator.userActivation && navigator.userActivation.isActive) startVoice();
     $('#introVoice').onclick = () => {
-      if (introStarted) { speak(false); introStarted = false; $('#introVoice').textContent = '🔊 Listen to instructions'; }
+      if (introStarted) { voice.stop(); introStarted = false; $('#introVoice').textContent = '🔊 Listen to instructions'; }
       else startVoice();
     };
+    $('#introGuide').onchange = e => { voice.on = e.target.checked; state.voiceOn = voice.on; save(); };
     $('#introStart').onclick = () => {
+      const wasSpeaking = introStarted;
       closeIntro();
-      if (!R().collection) { state.caseId = 'case1'; state.tab = 'case'; save(); render(); }
+      if (!R().collection) { state.caseId = 'case1'; state.tab = 'case'; save(); }
+      narratedKey = state.caseId + '|' + state.tab;
+      render();
+      narrateTab(wasSpeaking);   // after the general instructions, if they are still being read
     };
   }
 
@@ -165,7 +250,12 @@
       const ok = c.collection.correct.includes(v) || c.collection.correct.includes('*');
       $('#collFb').innerHTML = `<div class="fb ${ok ? 'ok' : 'bad'}"><b>${ok ? 'Appropriate.' : 'Not the best choice.'}</b> ${esc(c.collection.why)}</div>`;
     };
-    $('#collCheck').onclick = () => { const v = $('input[name=coll]:checked'); if (!v) return; r.collection = v.value; save(); fb(); render(); };
+    $('#collCheck').onclick = () => {
+      const v = $('input[name=coll]:checked'); if (!v) { voice.say('First select a collection method.'); return; }
+      r.collection = v.value; save(); fb(); render();
+      const ok = c.collection.correct.includes(v.value) || c.collection.correct.includes('*');
+      voice.say((ok ? 'Appropriate. ' : 'Not the best choice. ') + c.collection.why + ' Now click Proceed to physical examination.');
+    };
     fb();
     $('#goPhys').onclick = () => { state.tab = 'physical'; save(); render(); };
   }
@@ -312,12 +402,16 @@
     <section class="card"><div class="flex"><button class="go" id="goChem">Proceed for chemical examination →</button>
       ${p.checked ? '' : '<span class="small muted">Record and check your physical findings first.</span>'}</div></section>`;
 
-    const bind = (id, key) => { $('#' + id).onchange = e => { p[key] = e.target.value; save(); }; };
+    const next = () => voice.say(physNext(p));
+    const bind = (id, key) => { $('#' + id).onchange = e => { p[key] = e.target.value; save(); next(); }; };
     bind('pVol', 'volume'); bind('pCol', 'colour'); bind('pApp', 'appearance'); bind('pOd', 'odour'); bind('pPh', 'pH'); bind('pReac', 'reaction');
-    ['sgObs', 'sgTd', 'sgCor'].forEach(id => $('#' + id).oninput = e => { p[id] = e.target.value; save(); });
-    $('#waft').onclick = () => { p.wafted = true; save(); $('#odourTxt').textContent = ODOUR_TEXT[ph.odour]; };
-    $('#dipPh').onclick = () => { p.dipped = true; save(); $('#dipPh').classList.remove('blink'); $('#phPad').setAttribute('fill', phColour(a.sample.pH)); };
-    $('#recPhys').onclick = () => { p.checked = true; save(); showPhysFb(); render(); };
+    ['sgObs', 'sgTd', 'sgCor'].forEach(id => { const el = $('#' + id); el.oninput = e => { p[id] = e.target.value; save(); }; el.onchange = next; });
+    $('#waft').onclick = () => { p.wafted = true; save(); $('#odourTxt').textContent = ODOUR_TEXT[ph.odour]; voice.say(ODOUR_TEXT[ph.odour] + ' ' + physNext(p)); };
+    $('#dipPh').onclick = () => { p.dipped = true; save(); $('#dipPh').classList.remove('blink'); $('#phPad').setAttribute('fill', phColour(a.sample.pH)); voice.say('The pH paper changes colour. ' + physNext(p)); };
+    $('#recPhys').onclick = () => {
+      p.checked = true; save(); const sc = showPhysFb(); render();
+      voice.say(`${sc.ok} of ${sc.tot} correct. ` + (sc.ok < sc.tot ? 'Check the rows marked with a cross, correct them and record again, or ' : '') + 'Click Proceed for chemical examination.');
+    };
     $('#goChem').onclick = () => { state.tab = 'chemical'; save(); render(); window.scrollTo(0, 0); };
     if (p.checked) showPhysFb();
 
@@ -348,6 +442,7 @@
       });
       html += `<tr><td></td><td colspan="3" class="small muted">Corrected SG = ${sg.observed.toFixed(3)} + (0.001 × ${sg.tdiff} ÷ 3) = ${sg.corrected.toFixed(3)} → <b>${esc(ph2.sgClass)}</b>. Raised SG: glycosuria, proteinuria, dehydration. Low SG: diabetes insipidus. Fixed at 1.010: end-stage renal disease.</td></tr></table>`;
       $('#physFb').innerHTML = `<div class="fb ${ok === tot ? 'ok' : 'info'}"><b>${ok} / ${tot} correct.</b> The values in the middle column are what the prepared wet-lab sample shows.</div>` + html;
+      return { ok, tot };
     }
   }
 
@@ -465,7 +560,7 @@
           const times = [15, 30, 45, 60, 75, 90, 105, 120]; let k = 0;
           const tick = () => {
             const snap = E.Rx.benedict(a.sample, { seconds: times[k] });
-            T.tint(snap.hex); say('Boiling… ' + times[k] + ' s · ' + (snap.f * 100).toFixed(0) + '% Cu²⁺ reduced');
+            T.tint(snap.hex); say('Boiling… ' + times[k] + ' s · ' + (snap.f * 100).toFixed(0) + '% Cu²⁺ reduced', true);
             if (++k < times.length) setTimeout(tick, 450); else done();
           };
           tick();
@@ -550,7 +645,11 @@
       CONSTITUENTS.forEach(([k, , right]) => { const g = r.select[k] === right; if (g) ok++; $(`[data-selm="${k}"]`).innerHTML = r.select[k] ? `<span class="mark ${g ? 'ok' : 'bad'}">${g ? '✓' : '✗ ' + esc(SELECT_OPTS.find(o => o[0] === right)[1])}</span>` : ''; });
       $('#selFb').innerHTML = `<div class="fb ${ok === 6 ? 'ok' : 'info'}">${ok} / 6 correct. The benches below follow the procedures in the lab manual.</div>`;
     };
-    $('#selCheck').onclick = () => { r.selChecked = true; save(); selFb(); };
+    $('#selCheck').onclick = () => {
+      r.selChecked = true; save(); selFb();
+      const ok = CONSTITUENTS.filter(([kk, , right]) => r.select[kk] === right).length;
+      voice.say(`${ok} of 6 correct. ` + chemNext(r));
+    };
     if (r.selChecked) selFb();
     $('#goDip').onclick = () => { state.tab = 'dipstick'; save(); render(); window.scrollTo(0, 0); };
 
@@ -579,7 +678,10 @@
     const T = Tube($('[data-tube]', card));
     const P = def.paper ? Paper($('[data-paper]', card)) : null;
     if (P) P.show(false);
-    const say = t => { $('[data-status]', card).textContent = t; };
+    let live = false, pendingNext = '', nextTimer = null;
+    const flushNext = () => { clearTimeout(nextTimer); if (pendingNext) { voice.say(pendingNext, true); pendingNext = ''; } };
+    // status text under the tube; spoken while the student is working (quiet = progress ticks that are not read out)
+    const say = (t, quiet) => { $('[data-status]', card).textContent = t; if (live && !quiet) { voice.say(t, true); flushNext(); } };
     const stepsEl = $('[data-steps]', card);
     let done = r.bench[k] || 0;
 
@@ -587,7 +689,13 @@
       stepsEl.innerHTML = def.steps.map((s, i) => `<button class="step ${i < done ? 'done' : ''} ${i === done ? 'next' : ''}" data-i="${i}" ${i > done ? 'disabled' : ''}><span class="n">${i < done ? '✓' : i + 1}</span><span>${esc(s[0])}</span></button>`).join('');
       $$('button.step', stepsEl).forEach(b => b.onclick = () => {
         const i = +b.dataset.i; if (i !== done) return;
-        def.steps[i][1](T, a, res, false, say, P); done = i + 1; r.bench[k] = done; save(); drawSteps(); syncRec();
+        voice.say((i === 0 ? `${meta.name}. Procedure: ${def.proc} ` : '') + `Step ${i + 1}. ${def.steps[i][0]}.`);
+        pendingNext = i + 1 < def.steps.length ? `Next, click step ${i + 2}: ${def.steps[i + 1][0]}.` : 'Now select the observation and the inference, and click Record in notebook.';
+        live = true;
+        const fn = def.steps[i][1];
+        fn(T, a, res, false, say, P); done = i + 1; r.bench[k] = done; save(); drawSteps(); syncRec();
+        // steps that report a result later (heating, ring formation) speak it first; the others go straight on
+        clearTimeout(nextTimer); nextTimer = setTimeout(flushNext, fn.length >= 5 ? 4500 : 0);
       });
     }
     function syncRec() {
@@ -602,8 +710,11 @@
     const obsSel = $('[data-obs]', card), infSel = $('[data-inf]', card);
     if (r.chem[k]) { obsSel.value = r.chem[k].obs; infSel.value = r.chem[k].inf; showFb(); }
     $('[data-rec]', card).onclick = () => {
-      if (obsSel.value === '' || infSel.value === '') { $('[data-fb]', card).innerHTML = '<div class="fb bad small">Select both an observation and an inference.</div>'; return; }
+      if (obsSel.value === '' || infSel.value === '') { $('[data-fb]', card).innerHTML = '<div class="fb bad small">Select both an observation and an inference.</div>'; voice.say('Select both an observation and an inference.'); return; }
       r.chem[k] = { obs: +obsSel.value, inf: +infSel.value }; save(); showFb(); render0Dots();
+      const rc = r.chem[k], go = rc.obs === res.obsIdx, gi = rc.inf === res.infIdx;
+      voice.say((go ? 'Observation correct. ' : `Observation not correct. Expected: ${res.observation}. `) +
+        (gi ? 'Inference correct. ' : `Inference not correct. Expected: ${res.inference}. `) + chemNext(r));
     };
     $('[data-reset]', card).onclick = () => { r.bench[k] = 0; delete r.chem[k]; save(); const fresh = makeBench(k, A(), r); card.replaceWith(fresh); render0Dots(); };
 
@@ -671,7 +782,12 @@
     const drawSteps = () => {
       stepsEl.innerHTML = STEPS.map((s, i) => `<button class="step ${i < sdone ? 'done' : ''} ${i === sdone ? 'next' : ''}" data-i="${i}" ${i > sdone ? 'disabled' : ''}><span class="n">${i < sdone ? '✓' : i + 1}</span><span>${s}</span></button>`).join('') +
         `<button class="ghost small" id="newStrip" style="margin-top:6px">Use a fresh strip</button>`;
-      $$('button.step', stepsEl).forEach(b => b.onclick = () => { if (+b.dataset.i !== sdone) return; sdone++; d.stepsDone = sdone; save(); if (sdone === 3) startDip(); drawSteps(); });
+      $$('button.step', stepsEl).forEach(b => b.onclick = () => {
+        if (+b.dataset.i !== sdone) return; sdone++; d.stepsDone = sdone; save();
+        if (sdone === 3) { voice.say('Timer started. Wait 40 seconds for the colours to develop.'); startDip(); }
+        else voice.say(`Next, click step ${sdone + 1}: ${STEPS[sdone]}.`);
+        drawSteps();
+      });
       $('#newStrip').onclick = () => { stopDip(); dip.t = -1; sdone = 0; d.stepsDone = 0; d.sel = {}; d.checked = false; d.readAt = null; save(); viewDipstick(m); render0Dots(); };
     };
     drawSteps();
@@ -683,12 +799,18 @@
       const c = $('#clock'), msg = $('#clockMsg');
       if (t < 0) { c.textContent = '--'; c.className = 'timer'; msg.textContent = 'Dip the strip to start.'; return; }
       c.textContent = Math.floor(t) + ' s';
+      const phase = t < 40 ? 0 : t <= 120 ? 1 : 2;
+      if (phase !== dip.phase) {
+        if (dip.phase != null && phase === 1) voice.say('40 seconds. Read now. Click the colour block on the chart that matches each pad, then click Record and check readings.');
+        if (dip.phase != null && phase === 2) voice.say('Two minutes have passed. Colour changes now have no diagnostic value. Use a fresh strip if you have not read the pads.');
+        dip.phase = phase;
+      }
       if (t < 40) { c.className = 'timer'; msg.textContent = 'Wait. Reactions are still developing (read from 40 s).'; }
       else if (t <= 120) { c.className = 'timer ok'; msg.innerHTML = '<b>READ NOW</b>, within the 40 s – 2 min window.'; }
       else { c.className = 'timer late'; msg.textContent = 'Past 2 minutes: colour changes now have no diagnostic value. Use a fresh strip.'; }
     };
     function startDip() {
-      stopDip(); dip.t = 0; dip.last = Date.now(); drawStrip();
+      stopDip(); dip.t = 0; dip.last = Date.now(); dip.phase = null; drawStrip(); dip.phase = 0;
       dip.timer = setInterval(() => { const now = Date.now(); dip.t += (now - dip.last) / 1000 * dip.speed; dip.last = now; drawStrip(); if (dip.t >= 400) stopDip(); }, 250);
     }
     drawStrip();
@@ -700,7 +822,11 @@
       if (dip.t >= 0) d.readAt = Math.round(dip.t);
       save(); $$(`#chart .sw[data-pad="${k}"]`).forEach(x => x.classList.toggle('sel', x === b));
     });
-    $('#dipCheck').onclick = () => { d.checked = true; save(); showDipFb(); render0Dots(); };
+    $('#dipCheck').onclick = () => {
+      d.checked = true; save(); showDipFb(); render0Dots();
+      const ok = E.DIP_ORDER.filter(k => d.sel[k] === a.dip[k]).length;
+      voice.say(`${ok} of 6 pads read correctly. The correct blocks are outlined in green. Click Proceed to report.`);
+    };
     $('#goRep').onclick = () => { stopDip(); state.tab = 'report'; save(); render(); window.scrollTo(0, 0); };
     if (d.checked) showDipFb();
 
@@ -830,7 +956,7 @@
   function savePdf() {
     const msg = $('#pdfMsg'), st = state.student;
     const say = (cls, html) => { msg.innerHTML = `<div class="fb ${cls} small">${html}</div>`; };
-    if (!st.roll || !st.roll.trim()) { say('bad', 'Enter your <b>roll number</b> before saving the report.'); $('#stRoll').focus(); return; }
+    if (!st.roll || !st.roll.trim()) { say('bad', 'Enter your <b>roll number</b> before saving the report.'); voice.say('Enter your roll number before saving the report.'); $('#stRoll').focus(); return; }
     const lib = window.jspdf && window.jspdf.jsPDF;
     if (!lib) { say('bad', 'The PDF library did not load. Use <b>Print this page</b> and choose “Save as PDF” instead.'); return; }
     const doc = new lib({ unit: 'mm', format: 'a4' });
@@ -910,6 +1036,7 @@
     const safe = st.roll.trim().replace(/[^A-Za-z0-9_-]+/g, '_');
     doc.save(`Expt10_Urine_Report_${safe}.pdf`);
     say('ok', `Saved <b>Expt10_Urine_Report_${esc(safe)}.pdf</b> with roll number ${esc(st.roll.trim())} and marks ${gOk} / ${gTot}.`);
+    voice.say(`Report saved as a PDF, with your roll number and marks: ${gOk} out of ${gTot}. Submit the PDF as instructed by your teacher.`);
   }
 
   function expectedRows(a) {

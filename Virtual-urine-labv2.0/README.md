@@ -10,6 +10,7 @@ Version 2.0 applies the department's corrections to the v1 lab (kept unchanged i
 | Area | Change |
 |---|---|
 | Start | Instruction screen before the lab begins, read aloud (browser speech): two case scenarios; do Case I, then Case II; physical → chemical → dipstick; interpret and submit the report. Replay from **🔊 Instructions**. |
+| Voice guide | Every step has spoken instructions (on by default; **🔊 Voice guide** toggles it, **↻ Repeat** replays the last instruction). It reads the case report, prompts each physical-examination entry in turn, reads each chemical test's procedure and every bench step with its result, says whether a recorded observation and inference are correct and what to do next, announces the dipstick 40 s and 2 min marks, and guides the report. Uses the browser's built-in speech (prefers an Indian-English voice); use headphones in a shared lab. |
 | Physical: colour | Only **Straw / amber yellow** kept among the yellows (pale and dark yellow removed). Applies to both cases; Case II answer is now straw / amber yellow. |
 | Physical: odour | **Ammoniacal** removed. |
 | Physical: pH | **Dip pH paper in urine and compare** button blinks until clicked. |

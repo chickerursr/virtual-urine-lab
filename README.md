@@ -10,8 +10,6 @@ It runs in any modern browser, on a laptop or a phone. There is nothing to insta
 
 ![Benedict's test after 2 minutes of boiling, Case 2](og-image.png)
 
-**Walkthrough video (8.5 min, narrated, recorded on this live site):** [media/walkthrough_expt10.mp4](media/walkthrough_expt10.mp4) (subtitles: [walkthrough_expt10.srt](media/walkthrough_expt10.srt))
-
 ## What this is
 
 A virtual wet bench for Experiment 10 of the MBBS Biochemistry journal (JN Medical College, KAHER). It follows the journal's own two case reports and procedures:

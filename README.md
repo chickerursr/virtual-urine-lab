@@ -1,6 +1,10 @@
 # Virtual Urine Lab: Experiment 10, Qualitative Analysis of Abnormal Urine
 
-**Open the lab:** https://chickerursr.github.io/virtual-urine-lab/
+**Open the lab (v2.0, current):** https://chickerursr.github.io/virtual-urine-lab/Virtual-urine-labv2.0/
+
+v2.0 applies the Department of Biochemistry's corrections and adds spoken instructions for every step, roll number and marks in a PDF report. See [Virtual-urine-labv2.0/README.md](Virtual-urine-labv2.0/README.md) for the list of changes.
+
+**Original lab (v1):** https://chickerursr.github.io/virtual-urine-lab/ (described below)
 
 It runs in any modern browser, on a laptop or a phone. There is nothing to install and no login. Each visitor's progress stays in their own browser.
 

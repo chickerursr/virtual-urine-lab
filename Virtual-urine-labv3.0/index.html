@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Virtual Urine Lab v3.0</title>
+<meta name="description" content="Virtual wet lab for MBBS Biochemistry Experiment 10 (qualitative analysis of abnormal urine). Every tube is simulated from the chemistry of the sample, and the predictions can be verified on the wet bench.">
+<meta property="og:title" content="Virtual Urine Lab: Experiment 10, abnormal urine">
+<meta property="og:description" content="Run the journal's urine tests in the browser. Results are computed from the chemistry and can be checked against the wet lab.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chickerursr.github.io/virtual-urine-lab/Virtual-urine-labv3.0/">
+<meta property="og:image" content="https://chickerursr.github.io/virtual-urine-lab/og-image.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{
+  --bg:#f5f1fa; --card:#ffffff; --ink:#1d2433; --muted:#4f5b6e; --line:#e1dcea;
+  --mint:#e3f4ec; --mintd:#2f7a5b; --peach:#fdebdf; --peachd:#a4532a; --lav:#ece6f8; --lavd:#5b3f96;
+  --sky:#e2eefa; --skyd:#255f95; --rose:#fbe4e8; --rosed:#9b2f45; --sun:#fdf4d8;
+  --ok:#2f7a5b; --bad:#a3313f; --accent:#5b3f96;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,Arial,sans-serif}
+header{background:linear-gradient(120deg,#e9e1f7,#dff1ea);border-bottom:1px solid var(--line);padding:18px 24px 0}
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:1.45rem;margin:0}
+.sub{color:var(--muted);font-size:.92rem;margin:2px 0 12px}
+.casepick{display:flex;gap:8px;flex-wrap:wrap}
+.casepick button{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:600}
+.casepick button.on{background:var(--lavd);color:#fff;border-color:var(--lavd)}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+nav button{background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;color:var(--muted);padding:10px 14px;font-weight:600}
+nav button.on{color:var(--ink);border-bottom-color:var(--lavd)}
+nav .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#cfc7dd;margin-left:6px;vertical-align:middle}
+nav .dot.done{background:var(--ok)}
+main{max-width:1180px;margin:0 auto;padding:20px 18px 60px}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid transparent;padding:8px 14px;background:var(--lavd);color:#fff}
+button.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+button.step{background:#fff;color:var(--ink);border:1px solid var(--line);text-align:left;width:100%;margin:4px 0;display:flex;gap:10px;align-items:flex-start}
+button.step .n{flex:0 0 24px;height:24px;border-radius:50%;background:var(--lav);color:var(--lavd);font-weight:700;display:grid;place-items:center;font-size:.8rem}
+button.step.done{background:var(--mint);border-color:#bfe3d1}
+button.step.done .n{background:var(--ok);color:#fff}
+button.step.next{border-color:var(--lavd);box-shadow:0 0 0 2px #d9cdf3}
+button:disabled{opacity:.45;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.card h2{margin:0 0 10px;font-size:1.2rem}
+.card h3{margin:0 0 8px;font-size:1.05rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.bench{display:grid;grid-template-columns:minmax(0,1.2fr) 190px minmax(0,1fr);gap:16px;align-items:start}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+.tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.78rem;font-weight:700;background:var(--lav);color:var(--lavd)}
+.tag.mint{background:var(--mint);color:var(--mintd)} .tag.peach{background:var(--peach);color:var(--peachd)} .tag.rose{background:var(--rose);color:var(--rosed)}
+.note{background:var(--sun);border-radius:10px;padding:10px 12px;font-size:.9rem}
+.fb{border-radius:10px;padding:10px 12px;margin-top:10px;font-size:.92rem}
+.fb.ok{background:var(--mint);color:#174a35} .fb.bad{background:var(--rose);color:#6d1f2d} .fb.info{background:var(--sky);color:#183f63}
+select,input[type=number],input[type=text],textarea{font:inherit;border:1px solid #cfc7dd;border-radius:8px;padding:6px 8px;background:#fff;color:var(--ink);max-width:100%}
+select{width:100%}
+label.f{display:block;font-weight:600;font-size:.88rem;margin:8px 0 3px}
+table{border-collapse:collapse;width:100%}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top;font-size:.93rem}
+th{background:#f7f4fc;font-size:.82rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+td.H{color:var(--bad);font-weight:700} td.L{color:var(--skyd);font-weight:700}
+.tube-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.tube-wrap svg{width:150px;height:auto}
+svg .t{transition:fill 1.6s ease, opacity 1.6s ease, transform 2.4s ease}
+.status{min-height:2.6em;font-size:.88rem;text-align:center;color:var(--muted)}
+.swatches{display:flex;gap:4px;flex-wrap:wrap}
+.sw{width:46px;border:2px solid transparent;border-radius:6px;padding:2px;background:#fff;cursor:pointer;color:var(--ink)}
+.sw i{display:block;height:22px;border-radius:4px;border:1px solid #0002}
+.sw span{display:block;font-size:.66rem;line-height:1.1;text-align:center;margin-top:2px}
+.sw.sel{border-color:var(--lavd)}
+.sw.correct{outline:3px solid var(--ok)}
+.dip-row{display:grid;grid-template-columns:120px 40px 1fr;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.pad{width:36px;height:30px;border-radius:5px;border:1px solid #0003}
+.timer{font:700 2rem/1 Consolas,monospace}
+.timer.ok{color:var(--ok)} .timer.late{color:var(--bad)}
+.report{background:#fff;padding:26px;border:1px solid var(--line);border-radius:14px}
+.report h2{text-align:center;margin:0 0 4px}
+.report .hd{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 20px;margin:12px 0}
+.mark{font-weight:700} .mark.ok{color:var(--ok)} .mark.bad{color:var(--bad)}
+.kv{display:grid;grid-template-columns:200px 1fr;gap:4px 12px}
+details summary{cursor:pointer;font-weight:600}
+.flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.right{text-align:right}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+@keyframes rise{0%{transform:translateY(0);opacity:.9}100%{transform:translateY(-70px);opacity:0}}
+.bub circle{animation:rise 1.1s linear infinite;transform-box:fill-box}
+@keyframes flick{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.12)}}
+.flame{animation:flick .35s ease-in-out infinite;transform-origin:center bottom;transform-box:fill-box}
+.paper svg{width:150px;height:auto}
+button.go{background:#1f63c6;border-color:#1f63c6;color:#fff;font-weight:600}
+button.go:hover{background:#174f9f}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(31,99,198,.0);background:#fff}50%{box-shadow:0 0 0 4px rgba(31,99,198,.55);background:#e2eefa}}
+button.blink{animation:blink 1s ease-in-out infinite;border-color:#1f63c6;font-weight:700}
+@media (prefers-reduced-motion:reduce){button.blink{animation:none;box-shadow:0 0 0 3px rgba(31,99,198,.55)}}
+.sggrid{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:16px}
+.sggrid .tube-wrap svg{width:auto;max-width:100%}
+.overlay{position:fixed;inset:0;background:rgba(29,36,51,.55);display:grid;place-items:center;z-index:50;padding:16px}
+.modal{background:#fff;border-radius:16px;max-width:620px;width:100%;padding:22px 24px;box-shadow:0 20px 50px rgba(0,0,0,.25);max-height:92vh;overflow:auto}
+.modal h2{margin:0 0 10px;font-size:1.25rem}
+.intro-list li{margin:6px 0}
+@media(max-width:900px){.bench,.grid2,.grid3,.sggrid{grid-template-columns:1fr}.report .hd{grid-template-columns:1fr}}
+@media print{
+  header,nav,.noprint,.casepick{display:none!important}
+  body{background:#fff} main{padding:0;max-width:none}
+  .card{border:0;padding:0} .report{border:0;padding:0}
+  .overlay{display:none!important}
+}
+</style>
+</head>
+<body>
+<header class="noprint">
+  <div class="top">
+    <div>
+      <h1>Virtual Urine Lab · Experiment 10 <span class="tag">v3.0</span></h1>
+      <div class="sub">Qualitative analysis of abnormal urine: Case I, then Case II. Physical examination → chemical examination → dipstick → report → clinical significance.</div>
+    </div>
+    <div class="casepick" id="casepick"></div>
+  </div>
+  <nav id="tabs"></nav>
+</header>
+<main id="main"></main>
+<footer class="noprint" style="max-width:1180px;margin:0 auto;padding:0 18px 30px;color:#4f5b6e;font-size:.85rem">
+  For medical education. Results are model predictions, meant to be compared with the wet lab; not for clinical decisions.
+  Built by Prof. Satyadhyan Chickerur, Centre for AI Research, KLE Technological University ·
+  <a href="https://github.com/chickerursr/virtual-urine-lab" style="color:#5b3f96">source and documentation</a> · free for noncommercial use (<a href="https://github.com/chickerursr/virtual-urine-lab/blob/main/LICENSE.md" style="color:#5b3f96">PolyForm Noncommercial 1.0.0</a>)
+</footer>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="reactions.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

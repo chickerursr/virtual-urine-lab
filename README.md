@@ -1,8 +1,12 @@
 # Virtual Urine Lab: Experiment 10, Qualitative Analysis of Abnormal Urine
 
-**Open the lab (v2.0, current):** https://chickerursr.github.io/virtual-urine-lab/Virtual-urine-labv2.0/
+**Open the lab (v3.0, current):** https://chickerursr.github.io/virtual-urine-lab/Virtual-urine-labv3.0/
 
-v2.0 applies the Department of Biochemistry's corrections and adds spoken instructions for every step, roll number and marks in a PDF report. See [Virtual-urine-labv2.0/README.md](Virtual-urine-labv2.0/README.md) for the list of changes.
+v3.0 applies the department's second round of corrections: urinometer calibrated at 20 °C, Rothera's "small amount" inference removed, an interpretation box for each case, dipstick not marked, total marks 20, and a new Clinical significance section. See [Virtual-urine-labv3.0/README.md](Virtual-urine-labv3.0/README.md).
+
+**Previous version (v2.0):** https://chickerursr.github.io/virtual-urine-lab/Virtual-urine-labv2.0/
+
+v2.0 applies the Department of Biochemistry's first corrections and adds spoken instructions for every step, roll number and marks in a PDF report. See [Virtual-urine-labv2.0/README.md](Virtual-urine-labv2.0/README.md) for the list of changes.
 
 **Original lab (v1):** https://chickerursr.github.io/virtual-urine-lab/ (described below)
 

@@ -9,12 +9,12 @@ Version 3.0 applies the department's second round of corrections to v2.0 (v2.0 i
 
 | Area | Change |
 |---|---|
-| Physical: SG | Urinometer calibration temperature changed from 15 °C to **20 °C** (room temperature stays 29 °C, so the temperature difference is 9 °C and the correction is +0.003). Observed SG is unchanged: **Case I 1.023 → corrected 1.026**, **Case II 1.029 → corrected 1.032**. |
+| Physical: SG | Urinometer scale: each small division is **0.002** (five divisions between 1.010 and 1.020, instead of ten of 0.001), on the stem and in the magnifier. Calibration temperature changed from 15 °C to **20 °C** (room temperature stays 29 °C, so the temperature difference is 9 °C and the correction is +0.003). Observed SG is unchanged: **Case I 1.023 → corrected 1.026**, **Case II 1.029 → corrected 1.032**. |
 | Rothera's | Inference *Ketone bodies present (small amount)* removed. |
 | Report: interpretation | A clearly labelled **Interpretation of Case I / Case II** box now sits at the top of the Report tab, just below the roll number. The text also appears in the printed report and the PDF. The voice guide points students to it, and saving the PDF warns if a case has no interpretation. |
-| Dipstick | Still performed and checked, but **not marked**. The PDF lists the readings without marks. |
+| Dipstick | **Removed**: no dipstick tab, readings, marks or voice prompts. The lab is now physical → chemical → report → clinical significance. |
 | Marks | Total is **20**: 10 per case. See below. |
-| Clinical significance | New last tab, **6 · Clinical significance**: proteins, reducing sugars (with the Benedict's colour table and causes of glycosuria), blood, ketone bodies, bile salts and bile pigments, as in the journal. **🔊 Read this section aloud** reads it, and the voice guide reads it when the tab opens. |
+| Clinical significance | New last tab, **5 · Clinical significance**: proteins, reducing sugars (with the Benedict's colour table and causes of glycosuria), blood, ketone bodies, bile salts and bile pigments, as in the journal. **🔊 Read this section aloud** reads it, and the voice guide reads it when the tab opens. |
 
 ## Marks
 
@@ -23,7 +23,7 @@ Per case: 1 point per item, 23 points in total:
 - Physical (9): volume, colour, appearance, odour, pH, reaction, observed SG, temperature difference, corrected SG
 - Chemical (14): observation and inference for each of the 7 tests
 
-The points are scaled to 10 marks per case, rounded to the nearest half mark, so Case I + Case II = 20. The dipstick is not marked. The interpretation is not machine-marked; it goes into the PDF for the faculty to assess.
+The points are scaled to 10 marks per case, rounded to the nearest half mark, so Case I + Case II = 20. The interpretation is not machine-marked; it goes into the PDF for the faculty to assess.
 
 ## Tests
 

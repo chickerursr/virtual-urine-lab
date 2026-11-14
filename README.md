@@ -2,7 +2,7 @@
 
 **Open the lab (v3.0, current):** https://chickerursr.github.io/virtual-urine-lab/Virtual-urine-labv3.0/
 
-v3.0 applies the department's second round of corrections: urinometer calibrated at 20 °C, Rothera's "small amount" inference removed, an interpretation box for each case, dipstick not marked, total marks 20, and a new Clinical significance section. See [Virtual-urine-labv3.0/README.md](Virtual-urine-labv3.0/README.md).
+v3.0 applies the department's second round of corrections: urinometer scale in 0.002 divisions and calibrated at 20 °C, Rothera's "small amount" inference removed, an interpretation box for each case, dipstick removed, total marks 20, and a new Clinical significance section. See [Virtual-urine-labv3.0/README.md](Virtual-urine-labv3.0/README.md).
 
 **Previous version (v2.0):** https://chickerursr.github.io/virtual-urine-lab/Virtual-urine-labv2.0/
 

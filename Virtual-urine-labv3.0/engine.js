@@ -82,7 +82,7 @@
       interpretation:
         'Urine shows oliguria, smoky reddish-brown colour with smoky appearance, acidic pH and raised specific gravity. ' +
         'Heat coagulation and sulphosalicylic acid tests are positive (proteinuria, ++) and the benzidine test is positive (haematuria). ' +
-        'Reducing sugars, ketone bodies, bile salts and bile pigments are absent; the dipstick agrees (protein ++, blood +++). ' +
+        'Reducing sugars, ketone bodies, bile salts and bile pigments are absent. ' +
         'With facial (periorbital) puffiness and hypertension in a child, the findings indicate ACUTE GLOMERULONEPHRITIS (nephritic syndrome), most commonly post-streptococcal. ' +
         'The raised blood urea/creatinine support reduced glomerular filtration. Suggested follow-up: urine microscopy for RBC casts, ASO titre and serum C3.'
     },
@@ -116,9 +116,9 @@
       interpretation:
         'Urine volume indicates polyuria (osmotic diuresis). The urine is straw / amber yellow and has a HIGH specific gravity, because glucose adds to SG. ' +
         'It has a fruity odour and acidic pH. Benedict’s test gives a brick-red precipitate (≥2% glycosuria) and Rothera’s test gives a permanganate ring (ketonuria). ' +
-        'Protein, blood, bile salts and bile pigments are absent; the dipstick agrees (glucose ++++, ketones large). ' +
+        'Protein, blood, bile salts and bile pigments are absent. ' +
         'In a known diabetic with coma, Kussmaul breathing, fruity breath and hypotension (dehydration), this indicates DIABETIC KETOACIDOSIS. ' +
-        'Note: nitroprusside (Rothera’s, dipstick) detects acetoacetate and acetone but NOT β-hydroxybutyrate, the main ketone in DKA, so urine tests can under-estimate ketosis. Confirm with blood glucose, blood ketones and ABG (pH, bicarbonate, anion gap). The deranged lipid profile reflects insulin deficiency.'
+        'Note: nitroprusside (Rothera’s test) detects acetoacetate and acetone but NOT β-hydroxybutyrate, the main ketone in DKA, so urine tests can under-estimate ketosis. Confirm with blood glucose, blood ketones and ABG (pH, bicarbonate, anion gap). The deranged lipid profile reflects insulin deficiency.'
     }
   };
 

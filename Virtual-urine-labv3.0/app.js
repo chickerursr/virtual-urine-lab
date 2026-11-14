@@ -16,7 +16,7 @@
   state.env = Object.assign({}, ENV);
   state.student = state.student || { name: '', roll: '' };
   if (!['case1', 'case2'].includes(state.caseId)) state.caseId = 'case1';
-  if (!['case', 'physical', 'chemical', 'dipstick', 'report', 'clinical'].includes(state.tab)) state.tab = 'case';
+  if (!['case', 'physical', 'chemical', 'report', 'clinical'].includes(state.tab)) state.tab = 'case';
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignore */ } }
 
   const recOf = id => state.rec[id] || (state.rec[id] = { physical: {}, select: {}, chem: {}, bench: {}, dip: {}, meta: {} });
@@ -26,7 +26,7 @@
 
   const TABS = [
     ['case', '1 · Case & specimen'], ['physical', '2 · Physical exam'], ['chemical', '3 · Chemical tests'],
-    ['dipstick', '4 · Dipstick'], ['report', '5 · Report'], ['clinical', '6 · Clinical significance']
+    ['report', '4 · Report'], ['clinical', '5 · Clinical significance']
   ];
   const TEST_ORDER = ['heat', 'ssa', 'benedict', 'rothera', 'hay', 'fouchet', 'benzidine'];
 
@@ -35,7 +35,6 @@
     if (tab === 'case') return !!r.collection;
     if (tab === 'physical') return !!r.physical.checked;
     if (tab === 'chemical') return TEST_ORDER.every(k => r.chem[k]);
-    if (tab === 'dipstick') return !!r.dip.checked;
     return false;
   }
 
@@ -53,11 +52,11 @@
     $('#voiceRepeat').onclick = () => voice.repeat();
 
     $('#tabs').innerHTML = TABS.map(([id, l]) =>
-      `<button class="${state.tab === id ? 'on' : ''}" data-tab="${id}">${l}${['case', 'physical', 'chemical', 'dipstick'].includes(id) ? `<span class="dot ${isDone(id) ? 'done' : ''}"></span>` : ''}</button>`).join('');
+      `<button class="${state.tab === id ? 'on' : ''}" data-tab="${id}">${l}${['case', 'physical', 'chemical'].includes(id) ? `<span class="dot ${isDone(id) ? 'done' : ''}"></span>` : ''}</button>`).join('');
     $$('#tabs button').forEach(b => b.onclick = () => { stopDip(); state.tab = b.dataset.tab; save(); render(); window.scrollTo(0, 0); });
 
     const m = $('#main');
-    ({ case: viewCase, physical: viewPhysical, chemical: viewChemical, dipstick: viewDipstick, report: viewReport, clinical: viewClinical })[state.tab](m);
+    ({ case: viewCase, physical: viewPhysical, chemical: viewChemical, report: viewReport, clinical: viewClinical })[state.tab](m);
 
     // speak the instructions for a step whenever the student arrives at a new tab or case
     const key = state.caseId + '|' + state.tab;
@@ -112,8 +111,6 @@
       physical: () => `Physical examination of ${label}. ` + physNext(r.physical),
       chemical: () => `Chemical examination of ${label}. First, for each abnormal constituent, select the test you will perform, and click Check selection. ` +
         `Then perform the tests on the bench one step at a time, clicking each step in order. ` + chemNext(r),
-      dipstick: () => `Dipstick test for ${label}. Click the three steps of the Multistix procedure in order. The timer starts when you hold the strip horizontally. ` +
-        'Wait 40 seconds, then read each pad within 2 minutes by clicking the matching colour block on the chart. Then click Record and check readings.',
       report: () => `Report for ${label}. Enter your name and roll number. Then write your interpretation of ${label} in the Interpretation box, just below your roll number. ` +
         (state.caseId === 'case1' ? 'Then click Proceed to Case II, and analyse the second case in the same way.' : 'Then click Save report as PDF. The PDF contains both cases, your roll number, your interpretations and your marks out of 20. Finally, read the clinical significance section.'),
       clinical: () => 'Clinical significance. ' + clinicalSpeech()
@@ -132,7 +129,7 @@
     if (!p.dipped) return 'Now the pH. Click the blinking button: Dip pH paper in urine and compare.';
     if (blank(p.pH)) return 'Compare the colour of the pH paper with the colour chart, and select the pH read.';
     if (blank(p.reaction)) return 'Select the reaction: acidic, neutral or alkaline.';
-    if (blank(p.sgObs)) return 'Now the specific gravity. Read the urinometer where the lower meniscus cuts the scale, and enter the observed specific gravity.';
+    if (blank(p.sgObs)) return 'Now the specific gravity. Each small division on the urinometer is 0.002. Read the urinometer where the lower meniscus cuts the scale, and enter the observed specific gravity.';
     if (blank(p.sgTd)) return `Room temperature is ${state.env.troom} °C and the urinometer is calibrated at ${state.env.tcal} °C. Enter the temperature difference.`;
     if (blank(p.sgCor)) return 'Enter the corrected specific gravity: the observed value plus 0.001 times the temperature difference, divided by 3.';
     if (!p.checked) return 'Click Record and check physical findings.';
@@ -141,7 +138,7 @@
   // next test to perform on the chemical examination page
   function chemNext(r) {
     const k = TEST_ORDER.find(x => !r.chem[x]);
-    if (!k) return 'All the chemical tests are recorded. Click Proceed to dipstick analysis.';
+    if (!k) return 'All the chemical tests are recorded. Click Proceed to the report.';
     const step = r.bench[k] || 0, def = BENCH[k];
     return step >= def.steps.length ? `Select the observation and inference for the ${E.TESTS[k].name}, and click Record in notebook.`
       : `Next, the ${E.TESTS[k].name}. Click step ${step + 1}: ${def.steps[step][0]}.`;
@@ -152,7 +149,7 @@
     'Perform analysis of abnormal urine.',
     'There are two different case scenarios available in the lab.',
     'Read Case I and perform its urine analysis, then go for Case II.',
-    'First perform the physical examination, then proceed for the chemical examination, followed by the dipstick test.',
+    'First perform the physical examination, then proceed for the chemical examination.',
     'At the end of the experiment, based on the results, interpret the given cases and submit the report.'
   ];
   function closeIntro() {
@@ -242,7 +239,6 @@
         <li>Describe the physical properties of urine (colour, odour, appearance, pH, specific gravity) in abnormal conditions.</li>
         <li>Detect abnormal constituents (protein, reducing substance, ketone bodies, blood, bile salts, bile pigments) by chemical tests.</li>
         <li>Describe the abnormal constituents of urine in different disease conditions.</li>
-        <li>Observe dipstick analysis and interpret the result.</li>
       </ul>
       <div class="flex"><button class="go" id="goPhys">Proceed to physical examination →</button></div>
     </section>`;
@@ -283,12 +279,13 @@
   function urinometerSVG(a) {
     const sg = a.physical.sg, obs = sg.observed, liq = a.physical.liquid;
     // Full stem scale, 1.000 (top) to 1.040 (bottom); the value INCREASES downward.
-    const top = 26, step = 7.5, yv = v => top + Math.round((v - 1) * 1000) * step;
+    // Each small division is 0.002: five divisions between 1.010 and 1.020.
+    const top = 26, step = 7.5, yv = v => top + (v - 1) * 1000 * step;
     const ym = yv(obs);
     let ticks = '';
-    for (let i = 0; i <= 40; i++) {
-      const v = 1 + i / 1000, y = top + i * step, major = i % 10 === 0, mid = i % 5 === 0;
-      ticks += `<line x1="70" x2="${major ? 96 : mid ? 88 : 80}" y1="${y}" y2="${y}" stroke="#1d2433" stroke-width="${major ? 1.6 : 0.9}"/>`;
+    for (let i = 0; i <= 40; i += 2) {
+      const v = 1 + i / 1000, y = top + i * step, major = i % 10 === 0;
+      ticks += `<line x1="70" x2="${major ? 96 : 84}" y1="${y}" y2="${y}" stroke="#1d2433" stroke-width="${major ? 1.6 : 0.9}"/>`;
       if (major) ticks += `<line x1="58" x2="70" y1="${y}" y2="${y}" stroke="#1d2433" stroke-width="1.6"/><text x="100" y="${y + 4}" font-size="12" font-weight="700" fill="#1d2433">${v.toFixed(3)}</text>`;
     }
     const full = `<svg viewBox="0 0 190 376" width="180" aria-label="urinometer scale 1.000 to 1.040">
@@ -302,12 +299,13 @@
       <path d="M176 ${ym} l10 -5 v10 z" fill="#c0392b"/>
       <text x="95" y="370" text-anchor="middle" font-size="11" fill="#4f5b6e">read at the lower meniscus</text></svg>`;
     // magnified view around the meniscus
-    const px = 22, cy = 140; let zt = '';
-    for (let i = -6; i <= 6; i++) {
-      const v = Math.round((obs + i * 0.001) * 1000) / 1000, y = cy + i * px;
-      const major = Math.round(v * 1000) % 5 === 0;
-      zt += `<line x1="70" x2="${major ? 112 : 96}" y1="${y}" y2="${y}" stroke="#1d2433" stroke-width="${major ? 1.6 : 1}"/>`;
-      if (major) zt += `<text x="118" y="${y + 4}" font-size="13" font-weight="700" fill="#1d2433">${v.toFixed(3)}</text>`;
+    // 0.002 per division, as on the stem; every line is labelled so the reading can be checked
+    const px = 16, cy = 140; let zt = '';
+    const first = Math.ceil((obs - 0.008) * 500 - 1e-9) / 500;
+    for (let v = first; v <= obs + 0.008 + 1e-9; v = Math.round((v + 0.002) * 1000) / 1000) {
+      const y = cy + (v - obs) * 1000 * px, major = Math.round(v * 1000) % 10 === 0;
+      zt += `<line x1="70" x2="${major ? 112 : 98}" y1="${y}" y2="${y}" stroke="#1d2433" stroke-width="${major ? 1.6 : 1}"/>`;
+      zt += `<text x="118" y="${y + 4}" font-size="${major ? 13 : 11}" font-weight="${major ? 700 : 400}" fill="#1d2433">${v.toFixed(3)}</text>`;
     }
     const zm = `<svg viewBox="0 0 230 280" width="200" aria-label="magnified urinometer stem at the meniscus">
       <defs><clipPath id="zc"><rect x="6" y="6" width="218" height="268" rx="12"/></clipPath></defs>
@@ -384,7 +382,7 @@
             <div><b>Room temperature</b></div><div>${state.env.troom} °C (thermometer)</div>
             <div><b>Calibration temperature</b></div><div>${state.env.tcal} °C (marked on the stem)</div>
           </div>
-          <div class="small muted" style="margin-top:6px">The urinometer scale runs from 1.000 at the top to 1.040 at the bottom. Read the observed value where the lower meniscus cuts the scale.</div>
+          <div class="small muted" style="margin-top:6px">The urinometer scale runs from 1.000 at the top to 1.040 at the bottom. Each small division is 0.002 (five divisions between 1.010 and 1.020). Read the observed value where the lower meniscus cuts the scale.</div>
         </div>
         <div class="flex" style="justify-content:center;align-items:flex-start">${urinometerSVG(a)}</div>
         <div>
@@ -639,7 +637,7 @@
       <div id="selFb"></div>
     </section>
     <div id="benches"></div>
-    <section class="card"><div class="flex"><button class="go" id="goDip">Proceed to dipstick analysis →</button></div></section>`;
+    <section class="card"><div class="flex"><button class="go" id="goDip">Proceed to the report →</button></div></section>`;
     $$('select[data-sel]').forEach(s => s.onchange = () => { r.select[s.dataset.sel] = s.value; save(); });
     const selFb = () => {
       let ok = 0;
@@ -652,7 +650,7 @@
       voice.say(`${ok} of 6 correct. ` + chemNext(r));
     };
     if (r.selChecked) selFb();
-    $('#goDip').onclick = () => { state.tab = 'dipstick'; save(); render(); window.scrollTo(0, 0); };
+    $('#goDip').onclick = () => { state.tab = 'report'; save(); render(); window.scrollTo(0, 0); };
 
     const host = $('#benches');
     TEST_ORDER.forEach(k => host.appendChild(makeBench(k, a, r)));
@@ -730,129 +728,15 @@
   }
   function render0Dots() { $$('#tabs button').forEach(b => { const d = $('.dot', b); if (d) d.classList.toggle('done', isDone(b.dataset.tab)); }); }
 
-  /* ============================================================ 4. DIPSTICK */
-  let dip = { t: -1, timer: null, speed: 1, last: 0 };
-  function stopDip() { if (dip.timer) clearInterval(dip.timer); dip.timer = null; }
+  function stopDip() { /* v3.0: dipstick removed */ }
 
-  function padSVG(colour, speckled) {
-    let dots = '';
-    if (speckled) for (let i = 0; i < 9; i++) dots += `<circle cx="${5 + Math.random() * 26}" cy="${5 + Math.random() * 20}" r="1.6" fill="#2f6e4e"/>`;
-    return `<svg width="36" height="30" viewBox="0 0 36 30"><rect width="36" height="30" rx="4" fill="${colour}" stroke="#0003"/>${dots}</svg>`;
-  }
-
-  function viewDipstick(m) {
-    stopDip();
-    const a = A(), r = R(), d = r.dip; d.sel = d.sel || {};
-    m.innerHTML = `
-    <div class="grid2">
-      <section class="card">
-        <h2>Multistix procedure</h2>
-        <div data-steps></div>
-        <div class="flex" style="margin:10px 0"><label class="small"><input type="checkbox" id="fast" ${dip.speed > 1 ? 'checked' : ''}> Demo speed (×6). Leave unticked for a real-time practical.</label></div>
-        <div class="flex" style="gap:18px;align-items:center">
-          <div class="timer" id="clock">--</div>
-          <div class="small" id="clockMsg" style="flex:1">Dip the strip to start.</div>
-        </div>
-        <div id="strip" style="margin-top:12px"></div>
-        <p class="small muted">Read between 40 seconds and 2 minutes. Colour changes after 2 minutes have no diagnostic value.</p>
-      </section>
-      <section class="card">
-        <h2>Colour chart on the bottle: click your reading</h2>
-        <div id="chart"></div>
-        <div class="flex" style="margin-top:10px"><button id="dipCheck">Record & check readings</button><button class="go" id="goRep">Proceed to report →</button></div>
-        <div id="dipFb"></div>
-      </section>
-    </div>
-    <section class="card small">
-      <h3>Principle of colour development</h3>
-      <ul>
-        <li><b>pH:</b> a double indicator gives colours across the urinary pH range.</li>
-        <li><b>Specific gravity:</b> the apparent pKa change of pre-treated polyelectrolytes with ionic concentration. Glucose is non-ionic, so <b>glucose does not raise the strip SG</b>, but it does raise the urinometer reading.</li>
-        <li><b>Protein:</b> protein-error-of-indicator; green at constant pH means protein (mainly albumin).</li>
-        <li><b>Glucose:</b> glucose oxidase → gluconic acid + H₂O₂. Peroxidase then oxidises the KI chromogen (green → brown).</li>
-        <li><b>Ketone:</b> nitroprusside reacts with acetoacetate (and, less, acetone) to give shades of purple.</li>
-        <li><b>Blood:</b> haem peroxidase activity on tetramethylbenzidine with buffered organic peroxide (orange → green). Intact RBCs at low counts give green speckles.</li>
-      </ul>
-    </section>`;
-
-    const STEPS = ['Completely immerse all reagent areas in fresh, well-mixed urine and remove immediately',
-      'Run the edge of the strip against the rim of the container to remove excess urine',
-      'Hold the strip horizontally and start timing'];
-    let sdone = dip.t >= 0 ? 3 : (d.stepsDone || 0);
-    const stepsEl = $('[data-steps]', m);
-    const drawSteps = () => {
-      stepsEl.innerHTML = STEPS.map((s, i) => `<button class="step ${i < sdone ? 'done' : ''} ${i === sdone ? 'next' : ''}" data-i="${i}" ${i > sdone ? 'disabled' : ''}><span class="n">${i < sdone ? '✓' : i + 1}</span><span>${s}</span></button>`).join('') +
-        `<button class="ghost small" id="newStrip" style="margin-top:6px">Use a fresh strip</button>`;
-      $$('button.step', stepsEl).forEach(b => b.onclick = () => {
-        if (+b.dataset.i !== sdone) return; sdone++; d.stepsDone = sdone; save();
-        if (sdone === 3) { voice.say('Timer started. Wait 40 seconds for the colours to develop.'); startDip(); }
-        else voice.say(`Next, click step ${sdone + 1}: ${STEPS[sdone]}.`);
-        drawSteps();
-      });
-      $('#newStrip').onclick = () => { stopDip(); dip.t = -1; sdone = 0; d.stepsDone = 0; d.sel = {}; d.checked = false; d.readAt = null; save(); viewDipstick(m); render0Dots(); };
-    };
-    drawSteps();
-    $('#fast').onchange = e => { dip.speed = e.target.checked ? 6 : 1; };
-
-    const drawStrip = () => {
-      const t = dip.t;
-      $('#strip').innerHTML = E.DIP_ORDER.map(k => `<div class="dip-row"><div class="small"><b>${E.DIP[k].label}</b></div>${padSVG(E.padColour(k, a.dip[k], t, false, a.sample), k === 'blood' && a.dip.bloodSpeckled && t > 20)}<div class="small muted">${t < 0 ? '' : ''}</div></div>`).join('');
-      const c = $('#clock'), msg = $('#clockMsg');
-      if (t < 0) { c.textContent = '--'; c.className = 'timer'; msg.textContent = 'Dip the strip to start.'; return; }
-      c.textContent = Math.floor(t) + ' s';
-      const phase = t < 40 ? 0 : t <= 120 ? 1 : 2;
-      if (phase !== dip.phase) {
-        if (dip.phase != null && phase === 1) voice.say('40 seconds. Read now. Click the colour block on the chart that matches each pad, then click Record and check readings.');
-        if (dip.phase != null && phase === 2) voice.say('Two minutes have passed. Colour changes now have no diagnostic value. Use a fresh strip if you have not read the pads.');
-        dip.phase = phase;
-      }
-      if (t < 40) { c.className = 'timer'; msg.textContent = 'Wait. Reactions are still developing (read from 40 s).'; }
-      else if (t <= 120) { c.className = 'timer ok'; msg.innerHTML = '<b>READ NOW</b>, within the 40 s – 2 min window.'; }
-      else { c.className = 'timer late'; msg.textContent = 'Past 2 minutes: colour changes now have no diagnostic value. Use a fresh strip.'; }
-    };
-    function startDip() {
-      stopDip(); dip.t = 0; dip.last = Date.now(); dip.phase = null; drawStrip(); dip.phase = 0;
-      dip.timer = setInterval(() => { const now = Date.now(); dip.t += (now - dip.last) / 1000 * dip.speed; dip.last = now; drawStrip(); if (dip.t >= 400) stopDip(); }, 250);
-    }
-    drawStrip();
-
-    $('#chart').innerHTML = E.DIP_ORDER.map(k => `<div style="margin-bottom:10px"><div class="small"><b>${E.DIP[k].label}</b></div><div class="swatches">
-      ${E.DIP[k].levels.map((l, i) => `<button class="sw ${d.sel[k] === i ? 'sel' : ''}" data-pad="${k}" data-l="${i}"><i style="background:${E.DIP[k].colours[i]}"></i><span>${esc(l)}</span></button>`).join('')}</div></div>`).join('');
-    $$('#chart .sw').forEach(b => b.onclick = () => {
-      const k = b.dataset.pad; d.sel[k] = +b.dataset.l;
-      if (dip.t >= 0) d.readAt = Math.round(dip.t);
-      save(); $$(`#chart .sw[data-pad="${k}"]`).forEach(x => x.classList.toggle('sel', x === b));
-    });
-    $('#dipCheck').onclick = () => {
-      d.checked = true; save(); showDipFb(); render0Dots();
-      const ok = E.DIP_ORDER.filter(k => d.sel[k] === a.dip[k]).length;
-      voice.say(`${ok} of 6 pads read correctly. The correct blocks are outlined in green. Click Proceed to report.`);
-    };
-    $('#goRep').onclick = () => { stopDip(); state.tab = 'report'; save(); render(); window.scrollTo(0, 0); };
-    if (d.checked) showDipFb();
-
-    function showDipFb() {
-      let ok = 0;
-      E.DIP_ORDER.forEach(k => {
-        const truth = a.dip[k]; if (d.sel[k] === truth) ok++;
-        $$(`#chart .sw[data-pad="${k}"]`).forEach(x => x.classList.toggle('correct', +x.dataset.l === truth));
-      });
-      let timing = '';
-      if (d.readAt != null && d.readAt < 40) timing = '<div class="fb bad small">You read before 40 s. Reactions had not fully developed.</div>';
-      else if (d.readAt != null && d.readAt > 120) timing = '<div class="fb bad small">You read after 2 minutes. Those colours have no diagnostic value.</div>';
-      else if (d.readAt == null) timing = '<div class="fb info small">Tip: run the strip procedure and read inside the 40 s – 2 min window.</div>';
-      const sgNote = a.sample.glucose >= 0.5 ? `<div class="fb info small"><b>Why the strip SG (${E.DIP.sg.levels[a.dip.sg]}) is lower than the urinometer (${a.physical.sg.corrected.toFixed(3)}):</b> the strip responds only to ionic solutes. Glucose is non-ionic and is missed by the pad. This is real wet-lab behaviour, not an error.</div>` : '';
-      $('#dipFb').innerHTML = `<div class="fb ${ok === 6 ? 'ok' : 'info'}">${ok} / 6 pads read correctly. The correct chart blocks are outlined in green.<br><b>Result:</b> ${esc(E.dipReadingText(a.dip))}</div>${timing}${sgNote}`;
-    }
-  }
-
-  /* ============================================================ 5. REPORT */
+  /* ============================================================ 4. REPORT */
   const PH_LIST = ['4.5', '5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5'];
   const CASE_LABEL = { case1: 'Case I', case2: 'Case II' };
   const blank = v => v === undefined || v === null || v === '';
 
   /* Marks for one case, from everything the student recorded.
-     1 point per physical and chemical item (23 per case); the dipstick is not marked.
+     1 point per physical and chemical item (23 per case).
      Points are scaled to 10 marks per case (to the nearest half mark), so the two cases total 20. */
   const CASE_MAX = 10, GRAND_MAX = 20;
   const half = v => Math.round(v * 2) / 2;
@@ -861,7 +745,7 @@
     const c = E.CASES[id], a = E.analyse(c.sample, state.env), r = recOf(id), p = r.physical, ph = a.physical, sg = ph.sg;
     const nearPh = PH_LIST.reduce((bi, v, i) => Math.abs(parseFloat(v) - a.sample.pH) < Math.abs(parseFloat(PH_LIST[bi]) - a.sample.pH) ? i : bi, 0);
     const num = v => parseFloat(String(v == null ? '' : v).replace(',', '.'));
-    const rows = { physical: [], chemical: [], dipstick: [] };
+    const rows = { physical: [], chemical: [] };
     const opt = (sec, item, mine, truth, opts) => rows[sec].push({ item, mine: blank(mine) ? '' : opts[mine], expected: opts[truth], ok: !blank(mine) && Number(mine) === truth });
     opt('physical', 'Volume', p.volume, ph.volume, E.VOLUME_OPTS);
     opt('physical', 'Colour', p.colour, ph.colour, E.COLOUR_OPTS);
@@ -876,11 +760,9 @@
       rows.chemical.push({ item: t.name + ': observation', mine: rc ? t.obs[rc.obs] : '', expected: res.observation, ok: !!rc && rc.obs === res.obsIdx });
       rows.chemical.push({ item: t.name + ': inference', mine: rc ? t.inf[rc.inf] : '', expected: res.inference, ok: !!rc && rc.inf === res.infIdx });
     });
-    const d = r.dip || {}, sel = d.sel || {};
-    E.DIP_ORDER.forEach(k => rows.dipstick.push({ item: E.DIP[k].label, mine: d.checked && sel[k] != null ? E.DIP[k].levels[sel[k]] : '', expected: E.DIP[k].levels[a.dip[k]], ok: !!d.checked && sel[k] === a.dip[k] }));
     const sum = list => ({ ok: list.filter(x => x.ok).length, tot: list.length });
-    const sec = { physical: sum(rows.physical), chemical: sum(rows.chemical), dipstick: sum(rows.dipstick) };
-    const ok = sec.physical.ok + sec.chemical.ok, tot = sec.physical.tot + sec.chemical.tot;   // dipstick not marked
+    const sec = { physical: sum(rows.physical), chemical: sum(rows.chemical) };
+    const ok = sec.physical.ok + sec.chemical.ok, tot = sec.physical.tot + sec.chemical.tot;
     const marks = half(CASE_MAX * ok / tot);
     return { id, c, a, r, rows, sec, ok, tot, marks };
   }
@@ -909,7 +791,7 @@
       <table class="small" style="margin-top:12px"><tr><th>Marks</th><th>Physical</th><th>Chemical</th><th>Marks</th></tr>
         ${[m1, m2].map(x => `<tr><td>${CASE_LABEL[x.id]} · ${esc(x.c.patient.name.split(' (')[0])}</td><td>${x.sec.physical.ok} / ${x.sec.physical.tot}</td><td>${x.sec.chemical.ok} / ${x.sec.chemical.tot}</td><td><b>${fmt(x.marks)} / ${CASE_MAX}</b></td></tr>`).join('')}
         <tr><td><b>Total</b></td><td></td><td></td><td><b>${fmt(m1.marks + m2.marks)} / ${GRAND_MAX}</b></td></tr></table>
-      <div class="small muted" style="margin-top:4px">Physical and chemical items, 1 point each, scaled to 10 marks per case. The dipstick test is not marked.</div>
+      <div class="small muted" style="margin-top:4px">Physical and chemical items, 1 point each, scaled to 10 marks per case.</div>
       <div class="flex" style="margin-top:12px">
         <button class="go" id="savePdf">Save report as PDF (Case I + Case II)</button>
         <button class="ghost" id="print">Print this page</button>
@@ -943,8 +825,6 @@
       <table><tr><th>Test</th><th>Observation</th><th>Inference</th></tr>
       ${TEST_ORDER.map(k => { const rc = r.chem[k], t = E.TESTS[k], res = a.chem[k]; return `<tr><td>${esc(t.name)}</td><td>${rc ? esc(t.obs[rc.obs]) + ' ' + tick(rc.obs === res.obsIdx) : '<i class="muted">not performed</i>'}</td><td>${rc ? esc(t.inf[rc.inf]) + ' ' + tick(rc.inf === res.infIdx) : ''}</td></tr>`; }).join('')}
       </table>
-      <h3 style="margin-top:16px">Dipstick (Multistix)</h3>
-      <p class="small">${r.dip && r.dip.checked ? esc(E.DIP_ORDER.map(k => E.DIP[k].label + ': ' + (r.dip.sel[k] != null ? E.DIP[k].levels[r.dip.sel[k]] : '—')).join('; ')) + ' <span class="muted">(not marked)</span>' : '<i class="muted">not recorded</i>'}</p>
       <h3>Interpretation</h3>
       <p data-show="interp" style="white-space:pre-wrap">${f('interp', '') ? esc(f('interp', '')) : '<i class="muted">Write the interpretation in the box at the top of this page.</i>'}</p>
     </div>
@@ -1020,7 +900,7 @@
     y += 7;
     text(`Total: ${fmt(gOk)} / ${gTot}`, M + 30, 12.5, 'bold', [47, 122, 91]);
     y += 6;
-    text('Physical findings incl. specific gravity, and each test observation and inference: 1 point each (23 per case), scaled to 10 marks per case. Dipstick not marked.', M + 3, 7.5, 'normal', [79, 91, 110]);
+    text('Physical findings incl. specific gravity, and each test observation and inference: 1 point each (23 per case), scaled to 10 marks per case.', M + 3, 7.5, 'normal', [79, 91, 110]);
     y += 10;
 
     [m1, m2].forEach(mk => {
@@ -1037,8 +917,6 @@
       table(['Property', 'Your entry', 'Expected', 'Point'], widths, rowsOf(mk.rows.physical));
       heading(`Chemical examination  (${mk.sec.chemical.ok} / ${mk.sec.chemical.tot} points)`, 11);
       table(['Test', 'Your entry', 'Expected', 'Point'], widths, rowsOf(mk.rows.chemical));
-      heading('Dipstick (Multistix)  (not marked)', 11);
-      table(['Pad', 'Your reading', 'Expected'], [58, 62, 62], mk.rows.dipstick.map(x => ({ cells: [x.item, x.mine || 'not recorded', x.expected], ok: null })));
       heading('Interpretation (student)', 11);
       para(meta.interp && meta.interp.trim() ? meta.interp : '(not written)', 10);
     });
@@ -1067,7 +945,7 @@
       <tr><td>pH</td><td colspan="2">${a.sample.pH.toFixed(1)} (${esc(E.REACTION_OPTS[ph.reaction])})</td></tr>
       <tr><td>Specific gravity</td><td colspan="2">observed ${ph.sg.observed.toFixed(3)} at ${a.env.troom} °C → corrected ${ph.sg.corrected.toFixed(3)} (${esc(ph.sgClass)})</td></tr>
       ${TEST_ORDER.map(k => `<tr><td>${esc(E.TESTS[k].name)}</td><td>${esc(a.chem[k].observation)}</td><td><b>${esc(a.chem[k].inference)}</b></td></tr>`).join('')}
-      <tr><td>Dipstick</td><td colspan="2">${esc(E.dipReadingText(a.dip))}</td></tr>`;
+`;
   }
 
   function modelReport(c, a) {
